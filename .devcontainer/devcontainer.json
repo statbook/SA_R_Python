@@ -16,7 +16,7 @@
 		"ghcr.io/rocker-org/devcontainer-features/r-apt:0": {},
 		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {},
 	    	"ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
-	        	"packages": "reticulate,rmarkdown"
+	        	"packages": "reticulate,rmarkdown,languageserver"
 	    	}
 	},
 	"overrideFeatureInstallOrder": [
