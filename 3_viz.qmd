@@ -54,34 +54,34 @@ plt.show()
 import matplotlib.pyplot as plt
 import numpy as np
 
-df = pd.read_csv("C:/data/descriptive.csv", decimal=",")
-#выборка
-sample = df['output'].sample(n=30)
-#
-sample.hist(bins=5)
-plt.show()
+# df = pd.read_csv("C:/data/descriptive.csv", decimal=",")
+# #выборка
+# sample = df['output'].sample(n=30)
+# #
+# sample.hist(bins=5)
+# plt.show()
 
-plt.style.use('_mpl-gallery')
+# plt.style.use('_mpl-gallery')
 
-# make data
-np.random.seed(1)
-x = 4 + np.random.normal(0, 1.5, 200)
+# # make data
+# np.random.seed(1)
+# x = 4 + np.random.normal(0, 1.5, 200)
 
-#группировка
-bins = pd.DataFrame(pd.cut(sample, bins=5).value_counts())
-#накопленные частоты
-bins['cumul'] = np.cumsum(bins.output)
+# #группировка
+# bins = pd.DataFrame(pd.cut(sample, bins=5).value_counts())
+# #накопленные частоты
+# bins['cumul'] = np.cumsum(bins.output)
 
 
-# plot:
-fig, ax = plt.subplots()
+# # plot:
+# fig, ax = plt.subplots()
 
-ax.hist(x, bins=8, linewidth=0.5, edgecolor="white")
+# ax.hist(x, bins=8, linewidth=0.5, edgecolor="white")
 
-ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-       ylim=(0, 56), yticks=np.linspace(0, 56, 9))
+# ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+#        ylim=(0, 56), yticks=np.linspace(0, 56, 9))
 
-plt.show()
+# plt.show()
 ```
 
 
@@ -91,7 +91,7 @@ plt.show()
 ## boxplot
 
 ```{python}
-#| label: python_histo
+#| label: python_bxplt
 #| echo: true
 #| message: false
 #| output-location: slide
@@ -123,7 +123,7 @@ plt.show()
 ## violine plot
 
 ```{python}
-#| label: python_histo
+#| label: python_violin
 #| echo: true
 #| message: false
 #| output-location: slide
