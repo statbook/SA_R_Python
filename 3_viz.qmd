@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Статистический анализ в R и Pyhton"
 subtitle: "Графические средства представления данных в R, Python"
 format: 
@@ -45,6 +45,46 @@ plt.show()
 
 гистрограмма распределения
 ## полигон
+
+```{python}
+#| label: python_polygon
+#| echo: true
+#| message: false
+#| output-location: slide
+import matplotlib.pyplot as plt
+import numpy as np
+
+df = pd.read_csv("C:/data/descriptive.csv", decimal=",")
+#выборка
+sample = df['output'].sample(n=30)
+#
+sample.hist(bins=5)
+plt.show()
+
+plt.style.use('_mpl-gallery')
+
+# make data
+np.random.seed(1)
+x = 4 + np.random.normal(0, 1.5, 200)
+
+#группировка
+bins = pd.DataFrame(pd.cut(sample, bins=5).value_counts())
+#накопленные частоты
+bins['cumul'] = np.cumsum(bins.output)
+
+
+# plot:
+fig, ax = plt.subplots()
+
+ax.hist(x, bins=8, linewidth=0.5, edgecolor="white")
+
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 56), yticks=np.linspace(0, 56, 9))
+
+plt.show()
+```
+
+
 ## кумулята
 
 
