@@ -40,10 +40,8 @@ ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
 plt.show()
 ```
 
-
-
-
 гистрограмма распределения
+
 ## полигон
 
 ```{python}
