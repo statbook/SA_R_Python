@@ -1,0 +1,145 @@
+﻿---
+title: "Статистический анализ в R и Pyhton"
+subtitle: "Графические средства представления данных в R, Python"
+format: 
+  revealjs:
+    embed-resources: true
+lang: ru
+execute:
+    eval: true
+    echo: true
+author: ""
+---
+
+## Типы визуализации и представления
+
+## гистограмма распределения
+
+```{python}
+#| label: python_histo
+#| echo: true
+#| message: false
+#| output-location: slide
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.style.use('_mpl-gallery')
+
+# make data
+np.random.seed(1)
+x = 4 + np.random.normal(0, 1.5, 200)
+
+# plot:
+fig, ax = plt.subplots()
+
+ax.hist(x, bins=8, linewidth=0.5, edgecolor="white")
+
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 56), yticks=np.linspace(0, 56, 9))
+
+plt.show()
+```
+
+
+
+
+гистрограмма распределения
+## полигон
+## кумулята
+
+
+## boxplot
+
+```{python}
+#| label: python_histo
+#| echo: true
+#| message: false
+#| output-location: slide
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.style.use('_mpl-gallery')
+
+# make data:
+np.random.seed(10)
+D = np.random.normal((3, 5, 4), (1.25, 1.00, 1.25), (100, 3))
+
+# plot
+fig, ax = plt.subplots()
+VP = ax.boxplot(D, positions=[2, 4, 6], widths=1.5, patch_artist=True,
+                showmeans=False, showfliers=False,
+                medianprops={"color": "white", "linewidth": 0.5},
+                boxprops={"facecolor": "C0", "edgecolor": "white",
+                          "linewidth": 0.5},
+                whiskerprops={"color": "C0", "linewidth": 1.5},
+                capprops={"color": "C0", "linewidth": 1.5})
+
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 8), yticks=np.arange(1, 8))
+
+plt.show()
+```
+
+## violine plot
+
+```{python}
+#| label: python_histo
+#| echo: true
+#| message: false
+#| output-location: slide
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.style.use('_mpl-gallery')
+
+# make data:
+np.random.seed(10)
+D = np.random.normal((3, 5, 4), (0.75, 1.00, 0.75), (200, 3))
+
+# plot:
+fig, ax = plt.subplots()
+
+vp = ax.violinplot(D, [2, 4, 6], widths=2,
+                   showmeans=False, showmedians=False, showextrema=False)
+# styling:
+for body in vp['bodies']:
+    body.set_alpha(0.9)
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 8), yticks=np.arange(1, 8))
+
+plt.show()
+```
+
+
+динамика, ряд динамики
+диаграмма рассеивания
+
+
+Матрица диаграмм рассеяния
+Тепловая карта
+Контурная диаграмма
+Уровневая диаграмма
+
+3Д не надо
+
+
+и в R
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+
