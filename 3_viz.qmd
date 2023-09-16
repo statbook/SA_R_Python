@@ -11,9 +11,48 @@ execute:
 author: ""
 ---
 
-## Типы визуализации и представления
+## Подгрузка данных (Python code)
 
-## гистограмма распределения
+```{python}
+#| label: load_data_py
+#| echo: true
+#| message: false
+#| output-location: slide
+
+import pandas as pd
+# openpyxl
+df = pd.read_excel(
+    io = "crimes.xlsx",
+    sheet_name = 0,
+    header = 2
+)
+
+sbnm = sorted(
+    set([match[0] for match in df.columns.str.findall(
+        r'\d{4}').values if match != []]) )
+
+df = pd.melt(
+    frame = df,
+    id_vars= df.columns[:3],
+    value_vars= sbnm,
+    var_name = 'Год'
+).dropna()
+
+df = df.astype({'Год': 'int'})
+df = df.rename(columns={"Справочник территорий РФ": "ОКАТО"})
+import re
+df = df[
+    (df['Период'] == '118 январь-декабрь')&
+    # Фильтрация по субъектам РФ, у которых 11 значный код
+    (df['ОКАТО'].apply(lambda x:bool(re.search(r'\d{11}', x))))
+    ]
+
+df.columns
+df
+
+```
+
+## Гистограмма распределения (Python code)
 
 ```{python}
 #| label: python_histo
@@ -21,163 +60,707 @@ author: ""
 #| message: false
 #| output-location: slide
 import matplotlib.pyplot as plt
-import numpy as np
-
-plt.style.use('_mpl-gallery')
-
-# make data
-np.random.seed(1)
-x = 4 + np.random.normal(0, 1.5, 200)
 
 # plot:
-fig, ax = plt.subplots()
-
-ax.hist(x, bins=8, linewidth=0.5, edgecolor="white")
-
-ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-       ylim=(0, 56), yticks=np.linspace(0, 56, 9))
-
+df['value'].hist()
 plt.show()
+
+
 ```
 
-гистрограмма распределения
+## Группировка с равными интервалами (Python code)
 
-## полигон
+```{python}
+#| label: python_group
+#| echo: true
+#| message: false
+
+import numpy as np
+import scipy.stats as stats
+
+plt.clf()
+df_plt = df.query('Год==2022').value
+
+df_plt_bins = pd.DataFrame(pd.cut(df_plt, bins=5).value_counts())
+df_plt_bins['cumul'] = np.cumsum(df_plt_bins['count'])
+
+df_plt_bins
+
+```
+
+## Группировка с равными интервалами (Python code)
+
+```{python}
+#| label: python_group_plt
+#| echo: true
+#| message: false
+
+#строим их на одном графике
+plt.hist(df_plt, density=1, bins=5)
+plt.show()
+
+
+```
+
+
+## Полигон (Python code)
 
 ```{python}
 #| label: python_polygon
 #| echo: true
 #| message: false
 #| output-location: slide
-import matplotlib.pyplot as plt
-import numpy as np
 
-# df = pd.read_csv("C:/data/descriptive.csv", decimal=",")
-# #выборка
-# sample = df['output'].sample(n=30)
-# #
-# sample.hist(bins=5)
-# plt.show()
+plt.clf()
+df_plt_bins['count'].plot()
+plt.show()
 
-# plt.style.use('_mpl-gallery')
-
-# # make data
-# np.random.seed(1)
-# x = 4 + np.random.normal(0, 1.5, 200)
-
-# #группировка
-# bins = pd.DataFrame(pd.cut(sample, bins=5).value_counts())
-# #накопленные частоты
-# bins['cumul'] = np.cumsum(bins.output)
-
-
-# # plot:
-# fig, ax = plt.subplots()
-
-# ax.hist(x, bins=8, linewidth=0.5, edgecolor="white")
-
-# ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-#        ylim=(0, 56), yticks=np.linspace(0, 56, 9))
-
-# plt.show()
 ```
 
 
-## кумулята
+## Кумулята (Python code)
 
+```{python}
+#| label: python_culumate
+#| echo: true
+#| message: false
+#| output-location: slide
 
-## boxplot
+plt.clf()
+df_plt_bins['cumul'].plot()
+plt.show()
+
+```
+
+## Ящичковая диаграмма (Python code)
 
 ```{python}
 #| label: python_bxplt
 #| echo: true
 #| message: false
 #| output-location: slide
-import matplotlib.pyplot as plt
-import numpy as np
 
-plt.style.use('_mpl-gallery')
-
-# make data:
-np.random.seed(10)
-D = np.random.normal((3, 5, 4), (1.25, 1.00, 1.25), (100, 3))
-
-# plot
-fig, ax = plt.subplots()
-VP = ax.boxplot(D, positions=[2, 4, 6], widths=1.5, patch_artist=True,
-                showmeans=False, showfliers=False,
-                medianprops={"color": "white", "linewidth": 0.5},
-                boxprops={"facecolor": "C0", "edgecolor": "white",
-                          "linewidth": 0.5},
-                whiskerprops={"color": "C0", "linewidth": 1.5},
-                capprops={"color": "C0", "linewidth": 1.5})
-
-ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-       ylim=(0, 8), yticks=np.arange(1, 8))
-
+plt.clf()
+df_plt = df[['Год', 'value']].query('Год in (2008,2022)')
+df_plt.boxplot(by='Год')
 plt.show()
+
 ```
 
-## violine plot
+## Ящичковая диаграмма
+
+![Ящичковая диаграмма](Boxplot.png)
+
+## Скрипичная  диаграмма (Python code)
 
 ```{python}
 #| label: python_violin
 #| echo: true
 #| message: false
 #| output-location: slide
-import matplotlib.pyplot as plt
-import numpy as np
 
-plt.style.use('_mpl-gallery')
-
-# make data:
-np.random.seed(10)
-D = np.random.normal((3, 5, 4), (0.75, 1.00, 0.75), (200, 3))
-
+# plot:
+plt.clf()
 # plot:
 fig, ax = plt.subplots()
 
-vp = ax.violinplot(D, [2, 4, 6], widths=2,
-                   showmeans=False, showmedians=False, showextrema=False)
+vp = ax.violinplot(df['value'])
+
 # styling:
-for body in vp['bodies']:
-    body.set_alpha(0.9)
-ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-       ylim=(0, 8), yticks=np.arange(1, 8))
 
 plt.show()
+
+```
+
+## Ряд динамики (Python code)
+
+```{python}
+#| label: python_ts
+#| echo: true
+#| message: false
+#| output-location: slide
+
+plt.clf()
+df_plt = df.query('ОКАТО=="450000000001 г. Москва"')[['Год', 'value']]
+df_plt.plot('Год', 'value')
+plt.show()
+
+```
+
+## Диаграмма рассеяния (Python code)
+
+```{python}
+#| label: python_scatt
+#| echo: true
+#| message: false
+#| output-location: slide
+
+plt.clf()
+df = pd.read_csv("regressionlab_1.csv", index_col=0, sep=";")
+
+plt.scatter(df['issue'], df['adcost'])
+plt.show()
+
+```
+
+## Настройка графика - подписи (Python code)
+
+```{python}
+#| label: python_custm_1
+#| echo: true
+#| message: false
+#| output-location: slide
+
+# plt.clf()
+
+fig, ax = plt.subplots()
+ax.scatter('issue', 'adcost', data=df)
+ax.set_title('Диаграмма рассеяния')
+ax.set_xlabel('тираж, тыс.экз.')
+ax.set_ylabel('стоимость рекламы, руб.')
+ax.legend()
+plt.show()
+
+
 ```
 
 
-динамика, ряд динамики
-диаграмма рассеивания
+## Настройка графика - Цвет, размер (Python code) {.scrollable .smaller}
+
+```{python}
+#| label: python_custm_2
+#| echo: true
+#| message: false
+#| output-location: slide
 
 
-Матрица диаграмм рассеяния
-Тепловая карта
-Контурная диаграмма
-Уровневая диаграмма
+fig, ax = plt.subplots(figsize=(5, 2.7))
+ax.scatter('issue', 'adcost', data=df, s=50, facecolor='y', edgecolor='k')
 
-3Д не надо
+plt.show()
 
 
-и в R
+```
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+- 'b' as blue
+- 'g' as green
+- 'r' as red
+- 'c' as cyan
+- 'm' as magenta
+- 'y' as yellow
+- 'k' as black
+- 'w' as white
 
-## Bullets
 
-When you click the **Render** button a document will be generated that includes:
+## Настройка графика - добавление текста (Python code)
 
--   Content authored with markdown
--   Output from executable code
+```{python}
+#| label: python_custm_3
+#| echo: true
+#| message: false
+#| output-location: slide
 
-## Code
 
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+fig, ax = plt.subplots()
+ax.scatter('issue', 'adcost', data=df)
+ax.text(20, 30000, 'точки рассеяния')
+plt.show()
+
+
+```
+
+## Настройка графика - стиль (Python code)
+
+```{python}
+#| label: python_custm_4
+#| echo: true
+#| message: false
+
+
+fig, ax = plt.subplots()
+ax.scatter('issue', 'adcost', data = df, marker="^", s=80)
+plt.show()
+
+
+```
+
+## Настройка графика - масштаб оси (Python code)
+
+```{python}
+#| label: python_custm_5
+#| echo: true
+#| message: false
+
+
+fig, ax = plt.subplots()
+ax.scatter('issue', 'adcost', data = df)
+ax.set_xticks([20, 60, 140])
+ax.set_yticks([5000, 20000, 35000])
+plt.show()
+
+
+```
+
+
+
+## Подгрузка данных (R code) {.scrollable .smaller}
 
 ```{r}
-1 + 1
+#| label: load_data_r
+#| echo: true
+#| message: true
+
+library(tidyverse)
+
+df <- readxl::read_excel(
+    path = "crimes.xlsx",
+    sheet = 1,
+    skip = 2
+  ) |> 
+  pivot_longer(
+    cols = matches("\\d{4}"),
+    names_to = "Год",
+    names_transform = list( `Год` = as.integer),
+    values_to = "value"
+  ) |> 
+  drop_na() |>
+  rename( `ОКАТО` = `Справочник территорий РФ` ) |>
+  filter(
+    `Период` == '118 январь-декабрь',
+    str_detect(`ОКАТО`, "\\d{11}")
+  )
+
+df
+
+
 ```
+
+## Гистограмма распределения (R code)
+
+```{r}
+#| label: r_hist
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(df, aes(x=value)) + 
+    geom_histogram()
+
+```
+
+## Группировка с равными интервалами (R code)
+
+```{r}
+#| label: r_bin
+#| echo: true
+#| message: false
+
+df_plt <- filter(df, `Год` == 2022) |> 
+  pull(value) |>
+  # dig.lab количество отображаемых чисел
+  cut(breaks=5, dig.lab = 8) |> 
+  vctrs::vec_count(sort = "key") |> 
+  tibble() |> mutate( cumul = cumsum(count) )
+
+df_plt
+
+```
+
+## Группировка с равными интервалами (R code)
+
+```{r}
+#| label: r_bin_plt
+#| echo: true
+#| message: false
+
+
+ggplot(data=df_plt, aes(x=key, y=count)) +
+    geom_col()
+
+```
+
+## Полигон (R code)
+
+```{r}
+#| label: r_poly
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(data=df_plt, aes(key, count, group = 1)) +
+  geom_point()+
+  geom_line()
+
+```
+
+
+## Кумулята (R code)
+
+```{r}
+#| label: r_cumul
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(data=df_plt, aes(key, cumul, group = 1)) +
+  geom_point()+
+  geom_line()
+
+```
+
+
+## Ящичковая диаграмма (R code)
+
+```{r}
+#| label: r_bx
+#| echo: true
+#| message: false
+#| output-location: slide
+
+df |> 
+  filter(
+    `Год` %in% c(2008,2022)
+  ) |> 
+  mutate(`Год` = as.character(`Год`) ) -> df_plt
+
+ggplot(data=df_plt, aes( x = `Год`,group = `Год`,  y = value)) +
+  geom_boxplot()
+
+
+```
+
+## Скрипичная диаграмма (R code)
+
+```{r}
+#| label: r_violin
+#| echo: true
+#| message: false
+#| output-location: slide
+
+# plot:
+ggplot(data=df_plt, aes( x = `Год`,group = `Год`,  y = value) ) + 
+  geom_violin()
+
+```
+
+## Ряд динамики (R code)
+
+```{r}
+#| label: r_ts
+#| echo: true
+#| message: false
+#| output-location: slide
+
+df |> 
+  filter( `ОКАТО` == "450000000001 г. Москва" ) |> 
+  select(`Год`, value) -> df_plt
+
+ggplot(data=df_plt, aes( x = `Год`, y = value)) +
+  geom_line()
+
+
+```
+
+## Диаграмма рассеяния (R code)
+
+
+```{r}
+#| label: r_scatt
+#| echo: true
+#| message: false
+
+df <- read.csv("regressionlab_1.csv", sep = ";") |> tibble()
+
+ggplot(data=df, aes( x = issue, y = adcost)) +
+  geom_point() 
+```
+
+
+## Настройка графика - подписи (R code)
+
+```{r}
+#| label: r_custm_1
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(data=df, aes( x = issue, y = adcost)) +
+  geom_point() +
+  labs(
+    title = 'Диаграмма рассеяния',
+    x = 'тираж, тыс.экз.',
+    y = 'стоимость рекламы, руб.'
+  )
+
+```
+
+## Настройка графика - Цвет, размер (R code)
+
+```{r}
+#| label: r_custm_2
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(data=df, aes( x = issue, y = adcost)) +
+  geom_point( color="yellow", size = 10)
+
+```
+
+
+## Настройка графика - добавление текста (R code)
+
+```{r}
+#| label: r_custm_3
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(data=df, aes( x = issue, y = adcost)) +
+  geom_point() +
+  annotate(geom="text", x=20, y=30000, label="точки рассеяния")
+
+```
+
+## Настройка графика - стиль (R code)
+
+```{r}
+#| label: r_custm_4
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(data=df, aes( x = issue, y = adcost)) +
+  geom_point(shape=23, size = 3) 
+
+```
+
+## Настройка графика - масштаб оси (R code)
+
+```{r}
+#| label: r_custm_5
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(data=df, aes( x = issue, y = adcost)) +
+  geom_point() +
+  scale_x_continuous(breaks = c(20, 60, 140) ) +
+  scale_y_continuous(breaks = c(5000, 20000, 35000) )
+
+```
+
+ 
+## Подгрузка данных многомерных данных {.scrollable .smaller}
+
+```{python}
+#| label: python_load_muli
+#| echo: true
+#| message: false
+
+df = pd.read_csv("iris.csv")
+df
+
+```
+
+```{r}
+#| label: r_load_muli
+#| echo: true
+#| message: false
+
+df <- read.csv("iris.csv") |> tibble()
+df
+
+```
+
+
+
+## Многомерное распределения (Python code)  {.scrollable .smaller}
+
+График представляет собой трехмерное изображение
+ многомерного распределения в 3-х мерном пространстве.
+
+```{python}
+#| label: python_3d
+#| echo: true
+#| message: false
+#| output-location: slide
+
+plt.clf()
+
+fig = plt.figure(figsize=(8,9))
+ax = plt.axes(projection='3d')
+
+ax.scatter(
+  df['sepal.length'], df['sepal.width'],
+  df['petal.width']
+  )
+ax.view_init(40, 50) #повернуть график
+plt.show()
+
+```
+
+
+## Многомерное распределения (R code)
+
+```{r}
+#| label: r_3d
+#| echo: true
+#| message: false
+#| output-location: slide
+
+
+library("scatterplot3d")
+
+scatterplot3d(df[,1:3], angle = 55)
+
+
+```
+
+## Тепловая диаграмма {.scrollable .smaller}
+
+Тепловая диаграмма представляет наглядное отображение результатов
+иерархического кластерного анализа. При этом по одной оси возможно
+отобразить кластеризацию переменных, а по другой – наблюдений.
+
+В случае, когда по обеим осям отображаются либо переменные, либо
+наблюдения, тепловая диаграмма позволяет более конкретно
+определить возможные группы или выбросы в данных.
+
+Если по одной оси располагается иерархическая кластеризация
+переменных, а по другой – наблюдений, возможно выявить группы
+наиболее похожих или связанных наблюдений и переменных
+(например, какие именно наблюдения больше всего схожи по каким
+параметрам, а по каким – различаются)
+
+## Тепловая диаграмма (Python code)
+
+```{python}
+#| label: python_hmp
+#| echo: true
+#| message: false
+#| output-location: slide
+
+import seaborn as sns
+plt.clf()
+df.dropna(how="any", inplace=True)
+sns.clustermap(df.select_dtypes(include=float))
+plt.show()
+
+```
+
+
+
+## Тепловая диаграмма (R code)
+
+```{r}
+#| label: r_hmp
+#| echo: true
+#| message: false
+#| output-location: slide
+
+library(pheatmap) ## for heatmap generation
+
+pheatmap( select( df, where(is.double) ) )
+
+
+```
+
+
+## Уровневая диаграмма
+
+Является альтернативным и более совершенным графическим
+методом представления данных для диаграммы рассеяния, с
+добавлением третьей координаты в виде цвета.
+
+В данном примере уровневая диаграмма рассеяния позволяет
+изобразить сразу четыре фактора: первые две переменные (sepal
+width и sepal length) это координатные оси Х и У, размер точки
+соответствует величине третьей переменной (petal width), а цвет –
+категория (вид).
+
+## Уровневая диаграмма (Python code)
+
+```{python}
+#| label: python_lvl
+#| echo: true
+#| message: false
+#| output-location: slide
+
+plt.clf()
+target = pd.factorize(df.variety)[0]
+
+plt.scatter(
+  df['sepal.width'], 
+  df['sepal.length'], 
+  alpha=0.2, s=100*df['petal.width'], 
+  c=target, cmap='viridis' )
+plt.show()
+
+```
+
+## Уровневая диаграмма (R code)
+
+```{r}
+#| label: r_lvl
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(
+  data=df, 
+  aes( 
+    x = sepal.width, 
+    y = sepal.length, 
+    color = variety, 
+    size = petal.width ) 
+  ) +
+  geom_point() 
+
+
+```
+
+
+## Контурная диаграмма (Python code)
+
+Контурная диаграмма представляет «вид сверху» многомерного распределения, позволяя
+наглядно отобразить пики и провалы в многомерном распределении данных.
+
+```{python}
+#| label: python_contur
+#| echo: true
+#| message: false
+#| output-location: slide
+
+
+plt.clf()
+sns.kdeplot(
+  data = df,
+  x = 'sepal.width', 
+  y = 'sepal.length', cmap="seismic", 
+  cbar=True, fill=True, thresh=0
+  )
+plt.show()
+
+```
+
+## Контурная диаграмма (R code)
+
+```{r}
+#| label: r_contur
+#| echo: true
+#| message: false
+#| output-location: slide
+
+ggplot(df, aes(x = sepal.width, y = sepal.length)) +
+  geom_density_2d_filled()
+
+```
+
+
+<!-- ## Еще -->
+
+<!-- Матрица диаграмм рассеяния -->
+<!-- инверсия координат -->
 
 
